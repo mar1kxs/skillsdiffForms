@@ -1,20 +1,66 @@
 const services = {
   dota2: {
     name: "Dota 2",
+    description: "Тренировки в Dota 2",
     packages: {
-      immortal: { name: "Immortal", hours: 16, price: 99.99 },
-      divine: { name: "Divine+", hours: 8, price: 34.99 },
-      start: { name: "Start", hours: 4, price: 23.99 },
-      single: { name: "1 Тренировка", hours: 1, price: 7.59 },
+      immortal: { name: "Immortal", hours: 16, price: 99.99, type: "hours" },
+      divine: { name: "Divine+", hours: 8, price: 34.99, type: "hours" },
+      start: { name: "Start", hours: 4, price: 23.99, type: "hours" },
+      single: { name: "1 Тренировка", hours: 1, price: 7.59, type: "hours" },
+      friend2: { name: "2 человека", hours: 1, price: 10.99, type: "hours" },
+      friend3: { name: "3 человека", hours: 1, price: 14.99, type: "hours" },
+      friend4: { name: "4 человека", hours: 1, price: 17.99, type: "hours" },
+      friend5: { name: "Full-stack", hours: 1, price: 20.99, type: "hours" },
     },
   },
   valorant: {
     name: "Valorant",
+    description: "Тренировки в Valorant",
     packages: {
-      radiant: { name: "Radiant", hours: 16, price: 99.99 },
-      immortal: { name: "Immortal+", hours: 8, price: 34.99 },
-      start: { name: "Start", hours: 4, price: 23.99 },
-      single: { name: "1 Тренировка", hours: 1, price: 7.59 },
+      radiant: { name: "Radiant", hours: 16, price: 99.99, type: "hours" },
+      immortal: { name: "Immortal+", hours: 8, price: 34.99, type: "hours" },
+      start: { name: "Start", hours: 4, price: 23.99, type: "hours" },
+      single: { name: "1 Тренировка", hours: 1, price: 7.59, type: "hours" },
+      friend2: { name: "2 человека", hours: 1, price: 10.99, type: "hours" },
+      friend3: { name: "3 человека", hours: 1, price: 14.99, type: "hours" },
+      friend4: { name: "4 человека", hours: 1, price: 17.99, type: "hours" },
+      friend5: { name: "Full-stack", hours: 1, price: 20.99, type: "hours" },
+    },
+  },
+  valCoach: {
+    name: "Valorant",
+    description: "Аналитика / Party в Valorant",
+    packages: {
+      analysis: {
+        name: "Анализ игры в Valorant",
+        hours: 1,
+        price: 19.99,
+        type: "hours",
+      },
+      party: {
+        name: "Party-игры \nс тренером",
+        hours: 5,
+        price: 39.99,
+        type: "games",
+      },
+    },
+  },
+  dotaCoach: {
+    name: "Dota 2",
+    description: "Аналитика / Party в Dota 2",
+    packages: {
+      analysis: {
+        name: "Анализ игры в Dota 2",
+        hours: 2,
+        price: 19.99,
+        type: "hours",
+      },
+      party: {
+        name: "Party-игры с тренером",
+        hours: 5,
+        price: 39.99,
+        type: "games",
+      },
     },
   },
 };
@@ -42,8 +88,10 @@ minusBtn.addEventListener("click", () => {
 });
 
 plusBtn.addEventListener("click", () => {
-  currentCount++;
-  updateQuantityAndTotal();
+  if (currentCount < 10) {
+    currentCount++;
+    updateQuantityAndTotal();
+  }
 });
 
 function getTrainingWord(n) {
@@ -66,6 +114,16 @@ function getHourWord(n) {
   return "часов";
 }
 
+function getGameWord(n) {
+  const lastDigit = n % 10;
+  const lastTwoDigits = n % 100;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "игр";
+  if (lastDigit === 1) return "игра";
+  if (lastDigit >= 2 && lastDigit <= 4) return "игры";
+  return "игр";
+}
+
 function updateQuantityAndTotal() {
   if (!selectedPackage) return;
 
@@ -75,7 +133,11 @@ function updateQuantityAndTotal() {
   serviceTotalEl.textContent = `${totalPrice.toFixed(2)}$`;
   amountEl.textContent = currentCount;
 
-  if (trainingCount) {
+  if (trainingCount && selectedPackage.type === "games") {
+    trainingCount.textContent = `${totalTrainings} ${getGameWord(
+      totalTrainings
+    )}`;
+  } else {
     trainingCount.textContent = `${totalTrainings} ${getTrainingWord(
       totalTrainings
     )}`;
@@ -85,15 +147,14 @@ function updateQuantityAndTotal() {
     finalPrice.textContent = `${totalPrice.toFixed(2)}$`;
   }
 
-  if (packageNameText) {
-    const gameName = services[selectedGameKey]?.name;
-    packageNameText.textContent = `Тренировки в ${gameName}`;
+  if (packageNameText && selectedGameKey) {
+    packageNameText.textContent = services[selectedGameKey].description;
   }
 }
 
 function selectGame(gameKey, packageKey = null) {
   const game = services[gameKey];
-  if (!game) return;
+  if (!game || !game.packages) return;
 
   const selectedPackageKey =
     packageKey && game.packages[packageKey]
@@ -106,17 +167,23 @@ function selectGame(gameKey, packageKey = null) {
   const totalHours = selectedPackage.hours * currentCount;
 
   packageNameEl.textContent = `Пакет ${selectedPackage.name}`;
-  packageHoursEl.innerHTML = `${totalHours} ${getHourWord(
-    totalHours
-  )} <br /> тренировок`;
+  if (selectedPackage.type === "games") {
+    packageHoursEl.innerHTML = `${totalHours} ${getGameWord(totalHours)} `;
+  } else {
+    packageHoursEl.innerHTML = `${totalHours} ${getHourWord(
+      totalHours
+    )} <br /> тренировок`;
+  }
   packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}$`;
 
   updateQuantityAndTotal();
 }
 
 window.addEventListener("message", (event) => {
-  const data = event.data;
+  const allowedOrigin = "https://skillsdiff.com";
+  if (event.origin !== allowedOrigin) return;
 
+  const data = event.data;
   if (data && typeof data === "object" && data.game && data.package) {
     selectGame(data.game, data.package);
   }
@@ -132,6 +199,12 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
   ).value;
 
   const totalUSD = selectedPackage.price * currentCount;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("Введите корректный email");
+    return;
+  }
 
   const data = {
     email: email,

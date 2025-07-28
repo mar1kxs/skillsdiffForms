@@ -34,11 +34,6 @@ body {
   /* justify-content: center; ! удалить */
 }
 
-body,
-html {
-  user-select: none;
-}
-
 input {
   outline: none;
   border: none;
@@ -64,7 +59,6 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  user-select: none;
 }
 
 .card {
@@ -85,7 +79,7 @@ h2 {
   gap: 20px;
   font-size: 1.4rem;
   h3 {
-    text-wrap-mode: nowrap;
+    /* text-wrap-mode: nowrap; */
   }
   p {
     color: var(--text4);
@@ -163,7 +157,9 @@ h2 {
 .payment-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  h2 {
+    padding: 0;
+  }
 }
 
 .inputs-container {
@@ -176,7 +172,7 @@ h2 {
 .card-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
 }
 
 .submit-btn {
@@ -299,4 +295,11 @@ h2 {
   top: -150px;
   user-select: none;
   pointer-events: none;
+}
+
+.radio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px 0px;
 }
