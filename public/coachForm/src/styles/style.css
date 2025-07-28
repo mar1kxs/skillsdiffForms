@@ -1,0 +1,191 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+@font-face {
+  font-family: "Clear Sans Regular";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Clear Sans Regular"),
+    url("../fonts/ClearSans-Regular.woff") format("woff");
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: "Clear Sans Regular", sans-serif;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0e0e0e;
+  --text: #fff;
+  --text2: #b6b6b6;
+  --text3: #ff4350;
+  --btntext: #000;
+}
+
+body {
+  background-color: transparent;
+  height: 100vh;
+  overflow-y: hidden;
+  display: flex;
+  align-items: center; /*! удалить */
+  justify-content: center; /*! удалить */
+}
+
+input[type="text"] {
+  outline: none;
+  border: 1px solid var(--text);
+  background-color: transparent;
+  color: var(--text2);
+  padding: 14px 20px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+h1 {
+  color: var(--text);
+  padding-bottom: 36px;
+}
+
+.form {
+  width: 800px;
+  padding: 60px;
+  background-color: var(--bg);
+  border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 20px;
+}
+
+label {
+  color: var(--text2);
+  user-select: none;
+}
+
+button {
+  padding: 15px 40px;
+  border-radius: 32px;
+  width: 270px;
+  height: 55px;
+  background-color: var(--text);
+  color: var(--btntext);
+  border: none;
+  outline: none;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  transition: 100ms;
+}
+
+button:hover {
+  cursor: pointer;
+  color: #000000c4;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text); /* свой цвет текста */
+}
+
+.custom-checkbox {
+  position: absolute;
+  opacity: 0;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--text); /* рамка */
+  display: inline-block;
+  margin-right: 8px;
+  position: relative;
+}
+
+.custom-checkbox:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--text);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.input-container {
+  position: relative;
+}
+
+.custom-span {
+  position: absolute;
+  font-size: 0.9em;
+  top: 12px;
+  left: 15px;
+  color: var(--text2);
+  pointer-events: none;
+  transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--bg);
+  padding: 0 4px;
+}
+
+.custom-input:focus + .custom-span,
+.custom-input:valid + .custom-span {
+  transform: translateY(-20px) scale(0.85);
+  color: var(--text);
+}
+
+select {
+  width: 100%;
+  padding: 14px 20px;
+  border: 1px solid var(--text);
+  border-radius: 12px;
+  background-color: var(--bg);
+  color: var(--text2);
+  appearance: none;
+  position: relative;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  width: 12px;
+  height: 9px;
+  background-image: url("../images/arrow.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.form-success {
+  padding: 10px;
+  margin-top: 10px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--text);
+  border-radius: 8px;
+  text-align: center;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.form-success.show {
+  opacity: 1;
+}
