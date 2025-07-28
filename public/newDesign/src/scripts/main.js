@@ -114,7 +114,7 @@ function selectGame(gameKey, packageKey = null) {
   updateQuantityAndTotal();
 }
 
-parent.window.addEventListener("message", (event) => {
+window.addEventListener("message", (event) => {
   const data = event.data;
 
   if (data && typeof data === "object" && data.game && data.package) {
