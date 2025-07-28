@@ -115,8 +115,10 @@ function selectGame(gameKey, packageKey = null) {
 }
 
 window.addEventListener("message", (event) => {
-  if (event.data && event.data.game) {
-    selectGame(event.data.game, event.data.package);
+  const data = event.data;
+
+  if (data && typeof data === "object" && data.game && data.package) {
+    selectGame(data.game, data.package);
   }
 });
 
