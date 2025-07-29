@@ -28,8 +28,6 @@ body {
   height: 100vh;
   overflow-y: hidden;
   display: flex;
-  align-items: center; /*! удалить */
-  justify-content: center; /*! удалить */
 }
 
 input[type="text"] {
