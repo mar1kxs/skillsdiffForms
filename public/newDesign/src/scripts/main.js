@@ -35,7 +35,7 @@ const services = {
         name: "Анализ игры в Valorant",
         hours: 1,
         price: 19.99,
-        type: "hours",
+        type: "analysis",
       },
       party: {
         name: "Party-игры \nс тренером",
@@ -51,9 +51,9 @@ const services = {
     packages: {
       analysis: {
         name: "Анализ игры в Dota 2",
-        hours: 2,
+        hours: 1,
         price: 19.99,
-        type: "hours",
+        type: "analysis",
       },
       party: {
         name: "Party-игры с тренером",
@@ -169,6 +169,8 @@ function selectGame(gameKey, packageKey = null) {
   packageNameEl.textContent = `Пакет ${selectedPackage.name}`;
   if (selectedPackage.type === "games") {
     packageHoursEl.innerHTML = `${totalHours} ${getGameWord(totalHours)} `;
+  } else if (selectedPackage.type === "analysis") {
+    packageHoursEl.innerHTML = `${totalHours} ${getTrainingWord(totalHours)}`;
   } else {
     packageHoursEl.innerHTML = `${totalHours} ${getHourWord(
       totalHours
