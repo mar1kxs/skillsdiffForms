@@ -183,6 +183,7 @@ h2 {
   cursor: pointer;
   font-family: "Montserrat", sans-serif;
   background-color: var(--text);
+  color: var(--text3);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
