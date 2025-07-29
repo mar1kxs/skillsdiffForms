@@ -180,8 +180,11 @@ function selectGame(gameKey, packageKey = null) {
 }
 
 window.addEventListener("message", (event) => {
-  const allowedOrigin = "https://skillsdiff.com";
-  if (event.origin !== allowedOrigin) return;
+  const allowedOrigins = [
+    "https://www.skillsdiff.com",
+    "https://skillsdiff-forms.vercel.app",
+  ];
+  if (!allowedOrigins.includes(event.origin)) return;
 
   const data = event.data;
   if (data && typeof data === "object" && data.game && data.package) {
