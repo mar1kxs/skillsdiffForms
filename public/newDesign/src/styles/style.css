@@ -309,9 +309,12 @@ h2 {
   padding: 26px 0px 40px;
 }
 
-/* @media (max-width: 390px) {
+@media (max-width: 390px) {
   .training-type {
     flex-direction: column;
+  }
+  .form {
+    padding: 32px 20px;
   }
   .price-container {
     align-items: flex-start;
@@ -331,4 +334,4 @@ h2 {
       font-size: 12px;
     }
   }
-} */
+}
