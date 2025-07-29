@@ -183,6 +183,9 @@ h2 {
   cursor: pointer;
   font-family: "Montserrat", sans-serif;
   background-color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .submit-btn:hover {
