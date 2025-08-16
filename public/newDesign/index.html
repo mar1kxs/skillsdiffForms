@@ -86,21 +86,17 @@
         </div>
         <h2>Способ оплаты</h2>
         <div class="radio-container">
-          <!-- <label class="custom-radio">
-            <input type="radio" name="payment" value="Fondy" checked />
-            <span class="radio-mark"></span>
-            <span class="radio-label"
-              ><strong>"Fondy"</strong> Оплата банковской картой (для граждан
-              Украины и Европы)</span
-            >
-          </label> -->
-
           <label class="custom-radio">
             <input type="radio" name="payment" value="cloudpayments" />
             <span class="radio-mark"></span>
             <span class="radio-label">
               Оплата банковской картой (Россия и зарубежье)</span
             >
+          </label>
+          <label class="custom-radio" style="pointer-events: none">
+            <input type="radio" name="payment" value="Fondy" checked />
+            <span class="radio-mark"></span>
+            <span class="radio-label">Оплата криптовалютой (Скоро)</span>
           </label>
         </div>
         <button type="submit" class="submit-btn">Оплатить</button>
