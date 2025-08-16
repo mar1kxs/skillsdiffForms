@@ -3,10 +3,10 @@ const services = {
     name: "Dota 2",
     description: "Тренировки в Dota 2",
     packages: {
-      immortal: { name: "Immortal", hours: 16, price: 99.99, type: "hours" },
-      divine: { name: "Divine+", hours: 8, price: 34.99, type: "hours" },
-      start: { name: "Start", hours: 4, price: 23.99, type: "hours" },
-      single: { name: "1 Тренировка", hours: 1, price: 7.59, type: "hours" },
+      immortal: { name: "Immortal", hours: 16, price: 9499, type: "hours" },
+      divine: { name: "Divine+", hours: 8, price: 4999, type: "hours" },
+      start: { name: "Start", hours: 4, price: 2999, type: "hours" },
+      single: { name: "1 Тренировка", hours: 1, price: 799, type: "hours" },
       friend2: { name: "2 человека", hours: 1, price: 10.99, type: "hours" },
       friend3: { name: "3 человека", hours: 1, price: 14.99, type: "hours" },
       friend4: { name: "4 человека", hours: 1, price: 17.99, type: "hours" },
@@ -17,10 +17,10 @@ const services = {
     name: "Valorant",
     description: "Тренировки в Valorant",
     packages: {
-      radiant: { name: "Radiant", hours: 16, price: 99.99, type: "hours" },
-      immortal: { name: "Immortal+", hours: 8, price: 34.99, type: "hours" },
-      start: { name: "Start", hours: 4, price: 23.99, type: "hours" },
-      single: { name: "1 Тренировка", hours: 1, price: 7.59, type: "hours" },
+      radiant: { name: "Radiant", hours: 16, price: 9499, type: "hours" },
+      immortal: { name: "Immortal+", hours: 8, price: 4999, type: "hours" },
+      start: { name: "Start", hours: 4, price: 2999, type: "hours" },
+      single: { name: "1 Тренировка", hours: 1, price: 799, type: "hours" },
       friend2: { name: "2 человека", hours: 1, price: 10.99, type: "hours" },
       friend3: { name: "3 человека", hours: 1, price: 14.99, type: "hours" },
       friend4: { name: "4 человека", hours: 1, price: 17.99, type: "hours" },
@@ -34,13 +34,13 @@ const services = {
       analysis: {
         name: "Анализ игры в Valorant",
         hours: 1,
-        price: 19.99,
+        price: 1499,
         type: "analysis",
       },
       party: {
         name: "Party-игры \nс тренером",
         hours: 5,
-        price: 39.99,
+        price: 2999,
         type: "games",
       },
     },
@@ -52,13 +52,13 @@ const services = {
       analysis: {
         name: "Анализ игры в Dota 2",
         hours: 1,
-        price: 19.99,
+        price: 1499,
         type: "analysis",
       },
       party: {
         name: "Party-игры с тренером",
         hours: 5,
-        price: 39.99,
+        price: 2999,
         type: "games",
       },
     },
@@ -130,7 +130,7 @@ function updateQuantityAndTotal() {
   const totalPrice = selectedPackage.price * currentCount;
   const totalTrainings = selectedPackage.hours * currentCount;
 
-  serviceTotalEl.textContent = `${totalPrice.toFixed(2)}$`;
+  serviceTotalEl.textContent = `${totalPrice.toFixed(2)}₽`;
   amountEl.textContent = currentCount;
 
   if (trainingCount && selectedPackage.type === "games") {
@@ -144,7 +144,7 @@ function updateQuantityAndTotal() {
   }
 
   if (finalPrice) {
-    finalPrice.textContent = `${totalPrice.toFixed(2)}$`;
+    finalPrice.textContent = `${totalPrice.toFixed(2)}₽`;
   }
 
   if (packageNameText && selectedGameKey) {
@@ -176,7 +176,7 @@ function selectGame(gameKey, packageKey = null) {
       totalHours
     )} <br /> тренировок`;
   }
-  packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}$`;
+  packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}₽`;
 
   updateQuantityAndTotal();
 }
