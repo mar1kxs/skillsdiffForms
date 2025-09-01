@@ -80,13 +80,15 @@ const trainingCount = document.getElementById("training-count");
 const finalPrice = document.getElementById("final-price");
 const packageNameText = document.querySelector(".package-name");
 
+const MAKE_CREATE_LINK_URL =
+  "https://hook.eu2.make.com/3q7a2fyvuxfp3janlys65us5t7wolaq7";
+
 minusBtn.addEventListener("click", () => {
   if (currentCount > 1) {
     currentCount--;
     updateQuantityAndTotal();
   }
 });
-
 plusBtn.addEventListener("click", () => {
   if (currentCount < 10) {
     currentCount++;
@@ -95,44 +97,36 @@ plusBtn.addEventListener("click", () => {
 });
 
 function getTrainingWord(n) {
-  const lastDigit = n % 10;
-  const lastTwoDigits = n % 100;
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "тренировок";
-  if (lastDigit === 1) return "тренировка";
-  if (lastDigit >= 2 && lastDigit <= 4) return "тренировки";
+  const d = n % 10,
+    t = n % 100;
+  if (t >= 11 && t <= 14) return "тренировок";
+  if (d === 1) return "тренировка";
+  if (d >= 2 && d <= 4) return "тренировки";
   return "тренировок";
 }
-
 function getHourWord(n) {
-  const lastDigit = n % 10;
-  const lastTwoDigits = n % 100;
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "часов";
-  if (lastDigit === 1) return "час";
-  if (lastDigit >= 2 && lastDigit <= 4) return "часа";
+  const d = n % 10,
+    t = n % 100;
+  if (t >= 11 && t <= 14) return "часов";
+  if (d === 1) return "час";
+  if (d >= 2 && d <= 4) return "часа";
   return "часов";
 }
-
 function getGameWord(n) {
-  const lastDigit = n % 10;
-  const lastTwoDigits = n % 100;
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "игр";
-  if (lastDigit === 1) return "игра";
-  if (lastDigit >= 2 && lastDigit <= 4) return "игры";
+  const d = n % 10,
+    t = n % 100;
+  if (t >= 11 && t <= 14) return "игр";
+  if (d === 1) return "игра";
+  if (d >= 2 && d <= 4) return "игры";
   return "игр";
 }
 
 function updateQuantityAndTotal() {
   if (!selectedPackage) return;
-
   const totalPrice = selectedPackage.price * currentCount;
   const totalTrainings = selectedPackage.hours * currentCount;
-
   serviceTotalEl.textContent = `${totalPrice.toFixed(2)}₽`;
   amountEl.textContent = currentCount;
-
   if (trainingCount && selectedPackage.type === "games") {
     trainingCount.textContent = `${totalTrainings} ${getGameWord(
       totalTrainings
@@ -142,25 +136,18 @@ function updateQuantityAndTotal() {
       totalTrainings
     )}`;
   }
-
-  if (finalPrice) {
-    finalPrice.textContent = `${totalPrice.toFixed(2)}₽`;
-  }
-
-  if (packageNameText && selectedGameKey) {
+  if (finalPrice) finalPrice.textContent = `${totalPrice.toFixed(2)}₽`;
+  if (packageNameText && selectedGameKey)
     packageNameText.textContent = services[selectedGameKey].description;
-  }
 }
 
 function selectGame(gameKey, packageKey = null) {
   const game = services[gameKey];
   if (!game || !game.packages) return;
-
   const selectedPackageKey =
     packageKey && game.packages[packageKey]
       ? packageKey
       : Object.keys(game.packages)[0];
-
   selectedPackage = game.packages[selectedPackageKey];
   selectedGameKey = gameKey;
   currentCount = 1;
@@ -177,7 +164,6 @@ function selectGame(gameKey, packageKey = null) {
     )} <br /> тренировок`;
   }
   packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}₽`;
-
   updateQuantityAndTotal();
 }
 
@@ -187,7 +173,6 @@ window.addEventListener("message", (event) => {
     "https://skillsdiff-forms.vercel.app",
   ];
   if (!allowedOrigins.includes(event.origin)) return;
-
   const data = event.data;
   if (data && typeof data === "object" && data.game && data.package) {
     selectGame(data.game, data.package);
@@ -196,53 +181,65 @@ window.addEventListener("message", (event) => {
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
   e.preventDefault();
+  if (!selectedPackage || !services[selectedGameKey]) {
+    alert("Выберите пакет");
+    return;
+  }
 
-  const email = document.querySelector('input[name="email"]').value;
-  const name = document.querySelector('input[name="name"]').value;
-  const paymentMethod = document.querySelector(
-    'input[name="payment"]:checked'
-  ).value;
-
-  const totalUSD = selectedPackage.price * currentCount;
-
+  const email = document.querySelector('input[name="email"]').value.trim();
+  const name = document.querySelector('input[name="name"]').value.trim();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     alert("Введите корректный email");
     return;
   }
 
-  const data = {
-    email: email,
-    name: name,
+  const amount = Number((selectedPackage.price * currentCount).toFixed(2));
+  const currency = "RUB";
+  const invoiceId = `SD-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+  const description = `${services[selectedGameKey].description} — ${selectedPackage.name}`;
+
+  const payload = {
+    email,
+    name,
     game: services[selectedGameKey].name,
     package: selectedPackage.name,
     count: currentCount,
     total_hours: selectedPackage.hours * currentCount,
     price_per_package: selectedPackage.price,
-    total_price: totalUSD,
-    payment: paymentMethod,
-    currency: "USD",
+    total_price: amount,
+    currency,
+    invoice_id: invoiceId,
+    account_id: email,
+    description,
   };
 
-  try {
-    const response = await fetch(
-      "https://hook.eu2.make.com/oliv3ewvtpw30gvan3ihhufneg2g21ng",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
+  const btn = document.querySelector(".submit-btn");
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Генерируем ссылку...";
 
-    const result = await response.json();
-    if (result.payment_link) {
+  try {
+    const resp = await fetch(MAKE_CREATE_LINK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await resp.json().catch(() => ({}));
+    if (resp.ok && result && result.payment_link) {
       window.location.href = result.payment_link;
-    } else {
-      alert("Ошибка: ссылка на оплату не получена");
+      return;
     }
+
+    console.error("Bad response from Make:", result);
+    alert("Ошибка: ссылка на оплату не получена. Попробуйте позже.");
   } catch (err) {
     console.error(err);
-    alert("Ошибка отправки. Попробуйте позже.");
+    alert("Сервис оплаты временно недоступен. Попробуйте позже.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
   }
 });
 

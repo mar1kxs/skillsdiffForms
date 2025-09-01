@@ -29,7 +29,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
 
   try {
     const response = await fetch(
-      "https://hook.eu2.make.com/nb3ay4pcc321osmjtqiyihu1x18v6uv0",
+      "https://hook.eu2.make.com/gix103o3dtlf2uuayq5uklhdkcvla8x9",
       {
         method: "POST",
         headers: {

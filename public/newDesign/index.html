@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./src/styles/style.css" />
+    <script
+      src="https://widget.cloudpayments.ru/bundles/cloudpayments.js"
+      defer
+    ></script>
     <title>SkillsDiff form</title>
   </head>
   <body>
@@ -96,13 +100,24 @@
           <label class="custom-radio" style="pointer-events: none">
             <input type="radio" name="payment" value="crypt" />
             <span class="radio-mark"></span>
-            <span class="radio-label">Оплата криптовалютой (Скоро)</span>
+            <span class="radio-label" style="color: #9a9a9a"
+              >Оплата криптовалютой (Скоро)</span
+            >
           </label>
         </div>
         <button type="submit" class="submit-btn">Оплатить</button>
+        <p class="off">
+          Нажимая «Оплатить», вы принимаете условия Договора оферты и
+          <a
+            href="https://www.skillsdiff.com/privacy-policy"
+            style="color: #ff4350"
+          >
+            Политики конфиденциальности.</a
+          >
+        </p>
       </section>
     </form>
     <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/build/sha256.min.js"></script>
-    <script src="./src/scripts/main.js"></script>
+    <script src="./src/scripts/main.js" defer></script>
   </body>
 </html>
