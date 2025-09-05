@@ -166,6 +166,9 @@ function selectGame(gameKey, packageKey = null) {
   packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}₽`;
   updateQuantityAndTotal();
 }
+function openPol() {
+  window.parent.location.href = "https://www.skillsdiff.com/privacy-policy";
+}
 
 window.addEventListener("message", (event) => {
   const allowedOrigins = [
@@ -228,7 +231,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
 
     const result = await resp.json().catch(() => ({}));
     if (resp.ok && result && result.payment_link) {
-      window.location.href = result.payment_link;
+      window.parent.location.href = result.payment_link;
       return;
     }
 
