@@ -347,6 +347,48 @@ h2 {
   }
 }
 
-.container[_ngcontent-ng-c825485507] {
-  background: none !important;
+.hidden {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.window {
+  width: 650px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #fafafa;
+  height: 300px;
+  border-radius: 20px;
+  position: absolute;
+  h2 {
+    color: #1248f9;
+    font-size: 1.2em;
+    padding: 0;
+  }
+  h3 {
+    color: #2b2b2b;
+    font-size: 0.9em;
+    padding: 0;
+  }
+  .element {
+    width: 152px;
+    height: 152px;
+    border-radius: 50%;
+    border: 12px solid #9a9a9a;
+    border-top: 12px solid #1248f9;
+    animation: Spin 2s ease infinite;
+  }
+}
+
+@keyframes Spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

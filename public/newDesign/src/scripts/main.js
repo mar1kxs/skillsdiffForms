@@ -255,6 +255,12 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
   btn.disabled = true;
   btn.textContent = "Готовим оплату…";
 
+  const form = document.querySelector(".form");
+  form.classList.add("hidden");
+
+  const sumbWindow = document.querySelector(".window");
+  sumbWindow.classList.remove("hidden");
+
   try {
     const resp = await fetch(MAKE_PREPARE_CP_PARAMS_URL, {
       method: "POST",
