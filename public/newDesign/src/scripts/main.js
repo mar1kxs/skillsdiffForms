@@ -80,21 +80,8 @@ const trainingCount = document.getElementById("training-count");
 const finalPrice = document.getElementById("final-price");
 const packageNameText = document.querySelector(".package-name");
 
-const MAKE_CREATE_LINK_URL =
+const MAKE_PREPARE_CP_PARAMS_URL =
   "https://hook.eu2.make.com/3q7a2fyvuxfp3janlys65us5t7wolaq7";
-
-minusBtn.addEventListener("click", () => {
-  if (currentCount > 1) {
-    currentCount--;
-    updateQuantityAndTotal();
-  }
-});
-plusBtn.addEventListener("click", () => {
-  if (currentCount < 10) {
-    currentCount++;
-    updateQuantityAndTotal();
-  }
-});
 
 function getTrainingWord(n) {
   const d = n % 10,
@@ -166,9 +153,23 @@ function selectGame(gameKey, packageKey = null) {
   packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}₽`;
   updateQuantityAndTotal();
 }
+
 function openPol() {
   window.parent.location.href = "https://www.skillsdiff.com/privacy-policy";
 }
+
+document.getElementById("minus").addEventListener("click", () => {
+  if (currentCount > 1) {
+    currentCount--;
+    updateQuantityAndTotal();
+  }
+});
+document.getElementById("plus").addEventListener("click", () => {
+  if (currentCount < 10) {
+    currentCount++;
+    updateQuantityAndTotal();
+  }
+});
 
 window.addEventListener("message", (event) => {
   const allowedOrigins = [
@@ -181,6 +182,40 @@ window.addEventListener("message", (event) => {
     selectGame(data.game, data.package);
   }
 });
+
+function openCPWidget(mode, params) {
+  const widget = new cp.CloudPayments({ language: "ru" });
+  widget.pay(
+    mode || "charge",
+    {
+      publicId: params.publicId,
+      description: params.description,
+      amount: params.amount,
+      currency: params.currency,
+      invoiceId: params.invoiceId,
+      accountId: params.accountId,
+      email: params.email,
+      skin: params.skin, // тёмная тема
+      data: params.data || {},
+    },
+    {
+      onSuccess: function (options) {
+        // Пользователь прошёл 3DS, оплата успешна
+        console.log("Оплата успешна", options);
+
+        // Редирект на страницу "Спасибо"
+        window.location.href = "https://www.skillsdiff.com/thank-you";
+      },
+      onFail: function (reason, options) {
+        console.warn("Ошибка оплаты", reason, options);
+        alert("Оплата не прошла. Попробуйте ещё раз или другую карту.");
+      },
+      onComplete: function (paymentResult, options) {
+        console.log("Процесс оплаты завершён", paymentResult, options);
+      },
+    }
+  );
+}
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -220,23 +255,22 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
   const btn = document.querySelector(".submit-btn");
   const oldText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "Генерируем ссылку...";
+  btn.textContent = "Готовим оплату…";
 
   try {
-    const resp = await fetch(MAKE_CREATE_LINK_URL, {
+    const resp = await fetch(MAKE_PREPARE_CP_PARAMS_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     const result = await resp.json().catch(() => ({}));
-    if (resp.ok && result && result.payment_link) {
-      window.parent.location.href = result.payment_link;
-      return;
+    if (resp.ok && result && result.cp && result.cp.publicId) {
+      openCPWidget(result.cp.mode || "charge", result.cp);
+    } else {
+      console.error("Bad response from Make:", result);
+      alert("Ошибка: не удалось подготовить оплату. Попробуйте позже.");
     }
-
-    console.error("Bad response from Make:", result);
-    alert("Ошибка: ссылка на оплату не получена. Попробуйте позже.");
   } catch (err) {
     console.error(err);
     alert("Сервис оплаты временно недоступен. Попробуйте позже.");
