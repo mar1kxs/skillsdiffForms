@@ -215,6 +215,10 @@ function openCPWidget(mode, params) {
   );
 }
 
+function closeLight() {
+  window.parent.postMessage("*", "close lightbox");
+}
+
 document.querySelector(".form").addEventListener("submit", async function (e) {
   e.preventDefault();
   if (!selectedPackage || !services[selectedGameKey]) {
