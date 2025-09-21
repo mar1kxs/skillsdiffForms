@@ -195,23 +195,21 @@ function openCPWidget(mode, params) {
       invoiceId: params.invoiceId,
       accountId: params.accountId,
       email: params.email,
-      skin: params.skin, // тёмная тема
+      skin: "modern", // тёмная тема виджета
+      transparent: true,
       data: params.data || {},
     },
     {
-      onSuccess: function (options) {
-        // Пользователь прошёл 3DS, оплата успешна
-        console.log("Оплата успешна", options);
-
-        // Редирект на страницу "Спасибо"
+      onSuccess: function () {
+        // редирект после успешной оплаты
         window.location.href = "https://www.skillsdiff.com/thank-you";
       },
-      onFail: function (reason, options) {
-        console.warn("Ошибка оплаты", reason, options);
-        alert("Оплата не прошла. Попробуйте ещё раз или другую карту.");
+      onFail: function () {
+        // можно показать ошибку
       },
-      onComplete: function (paymentResult, options) {
-        console.log("Процесс оплаты завершён", paymentResult, options);
+      onComplete: function () {
+        // 3) убираем наш оверлей в любом случае
+        overlay.remove();
       },
     }
   );
