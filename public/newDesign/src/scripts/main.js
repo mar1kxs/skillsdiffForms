@@ -222,6 +222,7 @@ function openCPWidget(mode, params) {
       invoiceId: params.invoiceId,
       accountId: params.accountId,
       email: params.email,
+      successRedirectUrl: SUCCESS_URL,
       skin: "modern",
       data: params.data || {},
     },
