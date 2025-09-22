@@ -185,6 +185,33 @@ window.addEventListener("message", (event) => {
 
 function openCPWidget(mode, params) {
   const widget = new cp.CloudPayments({ language: "ru" });
+
+  let finished = false;
+  let opened = false;
+  let seenOnce = false;
+  const ERROR_URL = "https://www.skillsdiff.com/error";
+  const SUCCESS_URL = "https://www.skillsdiff.com/thank-you";
+
+  const selector =
+    'iframe[src*="cloudpayments"], iframe[src*="cloudsoft"], div[class*="cp_modal"], div[id*="cp_modal"], div[class*="cp-overlay"], div[id*="cp-overlay"]';
+
+  const poll = setInterval(() => {
+    const el = document.querySelector(selector);
+    if (el) {
+      opened = true;
+      seenOnce = true;
+    } else if (opened && seenOnce && !finished) {
+      clearInterval(poll);
+      window.parent.location.href = ERROR_URL;
+    }
+  }, 200);
+
+  const finalize = (toUrl) => {
+    finished = true;
+    clearInterval(poll);
+    if (toUrl) window.parent.location.href = toUrl;
+  };
+
   widget.pay(
     mode || "charge",
     {
@@ -195,21 +222,19 @@ function openCPWidget(mode, params) {
       invoiceId: params.invoiceId,
       accountId: params.accountId,
       email: params.email,
-      skin: "modern", // тёмная тема виджета
-      transparent: true,
+      skin: "modern",
       data: params.data || {},
     },
     {
       onSuccess: function () {
-        // редирект после успешной оплаты
-        window.location.href = "https://www.skillsdiff.com/thank-you";
+        finalize(SUCCESS_URL);
       },
       onFail: function () {
-        // можно показать ошибку
+        finalize(ERROR_URL);
       },
       onComplete: function () {
-        // 3) убираем наш оверлей в любом случае
-        overlay.remove();
+        finished = true;
+        clearInterval(poll);
       },
     }
   );
