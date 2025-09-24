@@ -231,14 +231,11 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
   sumbWindow.classList.remove("hidden");
 
   try {
-    const resp = await fetch(
-      "https://hook.eu2.make.com/nb3ay4pcc321osmjtqiyihu1x18v6uv0",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const resp = await fetch(MAKE_PREPARE_CP_PARAMS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const result = await resp.json().catch(() => ({}));
     if (resp.ok && result && result.cp && result.cp.publicId) {
