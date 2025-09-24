@@ -1,69 +1,4 @@
-const services = {
-  dota2: {
-    name: "Dota 2",
-    description: "Тренировки в Dota 2",
-    packages: {
-      immortal: { name: "Immortal", hours: 16, price: 9499, type: "hours" },
-      divine: { name: "Divine+", hours: 8, price: 4999, type: "hours" },
-      start: { name: "Start", hours: 4, price: 2999, type: "hours" },
-      single: { name: "1 Тренировка", hours: 1, price: 799, type: "hours" },
-      friend2: { name: "2 человека", hours: 1, price: 879, type: "hours" },
-      friend3: { name: "3 человека", hours: 1, price: 1199, type: "hours" },
-      friend4: { name: "4 человека", hours: 1, price: 1439, type: "hours" },
-      friend5: { name: "Full-stack", hours: 1, price: 1679, type: "hours" },
-    },
-  },
-  valorant: {
-    name: "Valorant",
-    description: "Тренировки в Valorant",
-    packages: {
-      radiant: { name: "Radiant", hours: 16, price: 9499, type: "hours" },
-      immortal: { name: "Immortal+", hours: 8, price: 4999, type: "hours" },
-      start: { name: "Start", hours: 4, price: 2999, type: "hours" },
-      single: { name: "1 Тренировка", hours: 1, price: 799, type: "hours" },
-      friend2: { name: "2 человека", hours: 1, price: 879, type: "hours" },
-      friend3: { name: "3 человека", hours: 1, price: 1199, type: "hours" },
-      friend4: { name: "4 человека", hours: 1, price: 1439, type: "hours" },
-      friend5: { name: "Full-stack", hours: 1, price: 1679, type: "hours" },
-    },
-  },
-  valCoach: {
-    name: "Valorant",
-    description: "Аналитика / Party в Valorant",
-    packages: {
-      analysis: {
-        name: "Анализ игры в Valorant",
-        hours: 1,
-        price: 1599,
-        type: "analysis",
-      },
-      party: {
-        name: "Party-игры \nс тренером",
-        hours: 5,
-        price: 3199,
-        type: "games",
-      },
-    },
-  },
-  dotaCoach: {
-    name: "Dota 2",
-    description: "Аналитика / Party в Dota 2",
-    packages: {
-      analysis: {
-        name: "Анализ игры в Dota 2",
-        hours: 1,
-        price: 1599,
-        type: "analysis",
-      },
-      party: {
-        name: "Party-игры с тренером",
-        hours: 5,
-        price: 3199,
-        type: "games",
-      },
-    },
-  },
-};
+import { services } from "./services.js";
 
 let currentCount = 1;
 let selectedPackage = null;
@@ -183,66 +118,67 @@ window.addEventListener("message", (event) => {
   }
 });
 
-function openCPWidget(mode, params) {
+function normalizeCP(cpRaw) {
+  const toNum = (v) => (v == null || v === "" ? undefined : Number(v));
+  return {
+    mode: cpRaw.mode || "charge",
+    publicId: cpRaw.publicId,
+    description: cpRaw.description,
+    amount: toNum(cpRaw.amount),
+    currency: cpRaw.currency || "RUB",
+    invoiceId: cpRaw.invoiceId,
+    accountId: cpRaw.accountId,
+    email: cpRaw.email,
+    skin: cpRaw.skin || "modern",
+    data: {
+      ...(cpRaw.data || {}),
+      cloudPayments: undefined,
+      CloudPayments: undefined,
+    },
+  };
+}
+
+function openCPWidget(cpCfg) {
+  const SUCCESS_URL = "https://www.skillsdiff.com/thank-you-page";
+  const ERROR_URL = "https://www.skillsdiff.com/error";
+
   const widget = new cp.CloudPayments({ language: "ru" });
 
   let finished = false;
-  let opened = false;
-  let seenOnce = false;
-  const ERROR_URL = "https://www.skillsdiff.com/error";
-  const SUCCESS_URL = "https://www.skillsdiff.com/thank-you";
-
-  const selector =
-    'iframe[src*="cloudpayments"], iframe[src*="cloudsoft"], div[class*="cp_modal"], div[id*="cp_modal"], div[class*="cp-overlay"], div[id*="cp-overlay"]';
-
-  const poll = setInterval(() => {
-    const el = document.querySelector(selector);
-    if (el) {
-      opened = true;
-      seenOnce = true;
-    } else if (opened && seenOnce && !finished) {
-      clearInterval(poll);
-      window.parent.location.href = ERROR_URL;
-    }
-  }, 200);
-
-  const finalize = (toUrl) => {
-    finished = true;
-    clearInterval(poll);
-    if (toUrl) window.parent.location.href = toUrl;
+  widget.onclose = function () {
+    if (!finished) window.parent.location.assign(ERROR_URL);
   };
 
   widget.pay(
-    mode || "charge",
+    cpCfg.mode,
     {
-      publicId: params.publicId,
-      description: params.description,
-      amount: params.amount,
-      currency: params.currency,
-      invoiceId: params.invoiceId,
-      accountId: params.accountId,
-      email: params.email,
-      successRedirectUrl: SUCCESS_URL,
-      skin: "modern",
-      data: params.data || {},
+      publicId: cpCfg.publicId,
+      description: cpCfg.description,
+      amount: Number(cpCfg.amount),
+      currency: cpCfg.currency,
+      invoiceId: cpCfg.invoiceId,
+      accountId: cpCfg.accountId,
+      email: cpCfg.email,
+      skin: cpCfg.skin,
+      data: cpCfg.data,
     },
     {
       onSuccess: function () {
-        finalize(SUCCESS_URL);
+        finished = true;
+        window.parent.location.href = SUCCESS_URL;
       },
       onFail: function () {
-        finalize(ERROR_URL);
-      },
-      onComplete: function () {
         finished = true;
-        clearInterval(poll);
+        window.parent.location.href = ERROR_URL;
+      },
+      onComplete: function (paymentResult, options) {
+        finished = true;
+        if (paymentResult && paymentResult.success) {
+          window.parent.location.href = SUCCESS_URL;
+        }
       },
     }
   );
-}
-
-function closeLight() {
-  window.parent.postMessage("*", "close lightbox");
 }
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
@@ -300,7 +236,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
 
     const result = await resp.json().catch(() => ({}));
     if (resp.ok && result && result.cp && result.cp.publicId) {
-      openCPWidget(result.cp.mode || "charge", result.cp);
+      openCPWidget(normalizeCP(result.cp));
     } else {
       console.error("Bad response from Make:", result);
       alert("Ошибка: не удалось подготовить оплату. Попробуйте позже.");
