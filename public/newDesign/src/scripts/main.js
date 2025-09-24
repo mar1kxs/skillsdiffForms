@@ -181,7 +181,7 @@ function openCPWidget(cpCfg) {
 }
 
 function closeLightbox() {
-  window.parent.postMessage({ type: "close lightbox" }, "*");
+  window.parent.postMessage({ type: "close" }, "*");
 }
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
