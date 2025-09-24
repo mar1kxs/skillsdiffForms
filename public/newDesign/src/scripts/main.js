@@ -146,7 +146,7 @@ function openCPWidget(cpCfg) {
 
   let finished = false;
   widget.onclose = function () {
-    if (!finished) window.parent.location.assign(ERROR_URL);
+    if (!finished) closeLightbox();
   };
 
   widget.pay(
@@ -179,6 +179,10 @@ function openCPWidget(cpCfg) {
       },
     }
   );
+}
+
+function closeLightbox() {
+  window.parent.postMessage("*", "close lightbox");
 }
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
