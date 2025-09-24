@@ -167,14 +167,13 @@ function openCPWidget(cpCfg) {
         finished = true;
         window.parent.location.href = SUCCESS_URL;
       },
-      onFail: function () {
-        finished = true;
-        window.parent.location.href = ERROR_URL;
-      },
+      onFail: function () {},
       onComplete: function (paymentResult, options) {
         finished = true;
         if (paymentResult && paymentResult.success) {
           window.parent.location.href = SUCCESS_URL;
+        } else {
+          window.parent.location.href = ERROR_URL;
         }
       },
     }
