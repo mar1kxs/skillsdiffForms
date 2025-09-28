@@ -125,11 +125,6 @@ function openCPWidget(cpCfg) {
   const widget = new cp.CloudPayments({ language: "ru" });
 
   let finished = false;
-  widget.onClose = function () {
-    if (!finished) {
-      window.parent.location.href = ERROR_URL;
-    }
-  };
 
   widget.pay(
     cpCfg.mode,
