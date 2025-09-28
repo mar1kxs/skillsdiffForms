@@ -146,7 +146,7 @@ function openCPWidget(cpCfg) {
 
   let finished = false;
   widget.onclose = function () {
-    if (!finished) closeLightbox();
+    if (!finished) window.parent.location.href = ERROR_URL;
   };
 
   widget.pay(
