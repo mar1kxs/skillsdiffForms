@@ -118,26 +118,6 @@ window.addEventListener("message", (event) => {
   }
 });
 
-function normalizeCP(cpRaw) {
-  const toNum = (v) => (v == null || v === "" ? undefined : Number(v));
-  return {
-    mode: cpRaw.mode || "charge",
-    publicId: cpRaw.publicId,
-    description: cpRaw.description,
-    amount: toNum(cpRaw.amount),
-    currency: cpRaw.currency || "RUB",
-    invoiceId: cpRaw.invoiceId,
-    accountId: cpRaw.accountId,
-    email: cpRaw.email,
-    skin: cpRaw.skin || "modern",
-    data: {
-      ...(cpRaw.data || {}),
-      cloudPayments: undefined,
-      CloudPayments: undefined,
-    },
-  };
-}
-
 function openCPWidget(cpCfg) {
   const SUCCESS_URL = "https://www.skillsdiff.com/thank-you-page";
   const ERROR_URL = "https://www.skillsdiff.com/error";
@@ -145,8 +125,10 @@ function openCPWidget(cpCfg) {
   const widget = new cp.CloudPayments({ language: "ru" });
 
   let finished = false;
-  widget.onclose = function () {
-    if (!finished) window.parent.location.href = ERROR_URL;
+  widget.onClose = function () {
+    if (!finished) {
+      window.parent.location.href = ERROR_URL;
+    }
   };
 
   widget.pay(
@@ -167,7 +149,10 @@ function openCPWidget(cpCfg) {
         finished = true;
         window.parent.location.href = SUCCESS_URL;
       },
-      onFail: function () {},
+      onFail: function () {
+        finished = true;
+        window.parent.location.href = ERROR_URL;
+      },
       onComplete: function (paymentResult, options) {
         finished = true;
         if (paymentResult && paymentResult.success) {
@@ -242,7 +227,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
 
     const result = await resp.json().catch(() => ({}));
     if (resp.ok && result && result.cp && result.cp.publicId) {
-      openCPWidget(normalizeCP(result.cp));
+      openCPWidget(result.cp);
     } else {
       console.error("Bad response from Make:", result);
       alert("Ошибка: не удалось подготовить оплату. Попробуйте позже.");
