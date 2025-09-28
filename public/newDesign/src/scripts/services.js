@@ -6,7 +6,7 @@ export const services = {
       immortal: { name: "Immortal", hours: 16, price: 9499, type: "hours" },
       divine: { name: "Divine+", hours: 8, price: 4999, type: "hours" },
       start: { name: "Start", hours: 4, price: 2999, type: "hours" },
-      single: { name: "1 Тренировка", hours: 1, price: 799, type: "hours" },
+      single: { name: "1 Тренировка", hours: 1, price: 11, type: "hours" },
       friend2: { name: "2 человека", hours: 1, price: 879, type: "hours" },
       friend3: { name: "3 человека", hours: 1, price: 1199, type: "hours" },
       friend4: { name: "4 человека", hours: 1, price: 1439, type: "hours" },
