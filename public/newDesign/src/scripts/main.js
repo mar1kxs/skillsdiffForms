@@ -181,7 +181,10 @@ function openCPWidget(cpCfg) {
 }
 
 function closeLightbox() {
-  window.postMessage({ type: "close" }, "*");
+  window.parent.postMessage(
+    { type: "close-lightbox" },
+    "https://www.skillsdiff.com"
+  );
 }
 
 document.querySelector(".form").addEventListener("submit", async function (e) {
