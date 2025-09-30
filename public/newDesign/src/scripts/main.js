@@ -89,10 +89,6 @@ function selectGame(gameKey, packageKey = null) {
   updateQuantityAndTotal();
 }
 
-function openPol() {
-  window.parent.location.href = "https://www.skillsdiff.com/privacy-policy";
-}
-
 document.getElementById("minus").addEventListener("click", () => {
   if (currentCount > 1) {
     currentCount--;
