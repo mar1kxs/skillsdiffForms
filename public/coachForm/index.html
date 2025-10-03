@@ -7,56 +7,58 @@
     <title>Coach Form</title>
   </head>
   <body>
-    <form class="form">
-      <h1>Я хочу стать тренером</h1>
-      <div class="container">
-        <div class="input-container">
-          <input type="text" name="name" class="custom-input" required />
-          <span class="custom-span">Имя*</span>
+    <div class="form-wrapper">
+      <form class="form">
+        <h1>Я хочу стать тренером</h1>
+        <div class="container">
+          <div class="input-container">
+            <input type="text" name="name" class="custom-input" required />
+            <span class="custom-span">Имя*</span>
+          </div>
+          <div class="input-container">
+            <input type="text" name="email" class="custom-input" required />
+            <span class="custom-span">E-mail*</span>
+          </div>
+          <div class="input-container">
+            <input type="text" name="age" class="custom-input" required />
+            <span class="custom-span">Возраст*</span>
+          </div>
+          <div class="input-container">
+            <input type="text" name="tg" class="custom-input" required />
+            <span class="custom-span">Telegram*</span>
+          </div>
+          <div class="input-container">
+            <input type="text" name="city" class="custom-input" required />
+            <span class="custom-span">Страна и город*</span>
+          </div>
+          <div class="select-wrapper">
+            <select name="discipline" id="discipline" required>
+              <option value="" disabled selected>Дисциплина</option>
+              <option value="valorant">Valorant</option>
+              <option value="dota2">Dota 2</option>
+            </select>
+          </div>
         </div>
-        <div class="input-container">
-          <input type="text" name="email" class="custom-input" required />
-          <span class="custom-span">E-mail*</span>
-        </div>
-        <div class="input-container">
-          <input type="text" name="age" class="custom-input" required />
-          <span class="custom-span">Возраст*</span>
-        </div>
-        <div class="input-container">
-          <input type="text" name="tg" class="custom-input" required />
-          <span class="custom-span">Telegram*</span>
-        </div>
-        <div class="input-container">
-          <input type="text" name="city" class="custom-input" required />
-          <span class="custom-span">Страна и город*</span>
-        </div>
-        <div class="select-wrapper">
-          <select name="discipline" id="discipline" required>
-            <option value="" disabled selected>Дисциплина</option>
-            <option value="valorant">Valorant</option>
-            <option value="dota2">Dota 2</option>
-          </select>
-        </div>
-      </div>
-      <input
-        type="text"
-        placeholder="Расскажи о своём опыте: что ты умеешь, каких успехов достиг в игре?"
-        name="experience"
-      />
-      <label class="checkbox-label">
-        <input type="checkbox" class="custom-checkbox" />
-        <span class="checkmark"></span>
-        Я согласен (а) с условиями
-        <a
-          href="https://www.skillsdiff.com/privacy-policy"
-          style="color: var(--text3)"
-        >
-          политики конфиденциальности</a
-        >
-      </label>
-      <button type="submit">Отправить</button>
-    </form>
-    <div class="form-success">Спасибо! Форма отправлена ✅</div>
+        <input
+          type="text"
+          placeholder="Расскажи о своём опыте: что ты умеешь, каких успехов достиг в игре?"
+          name="experience"
+        />
+        <label class="checkbox-label">
+          <input type="checkbox" class="custom-checkbox" />
+          <span class="checkmark"></span>
+          Я согласен (а) с условиями
+          <a
+            href="https://www.skillsdiff.com/privacy-policy"
+            style="color: var(--text3)"
+          >
+            политики конфиденциальности</a
+          >
+        </label>
+        <button type="submit">Отправить</button>
+      </form>
+      <div class="form-success">Спасибо! Форма отправлена ✅</div>
+    </div>
     <script src="./src/scripts/main.js"></script>
   </body>
 </html>
