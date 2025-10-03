@@ -1,9 +1,12 @@
+// main.js
 import { services } from "./services.js";
 
 let currentCount = 1;
 let selectedPackage = null;
+let selectedPackageKey = null; // <<< добавили
 let selectedGameKey = null;
 
+// --------- DOM ---------
 const minusBtn = document.getElementById("minus");
 const plusBtn = document.getElementById("plus");
 const packageNameEl = document.getElementById("package-name");
@@ -15,9 +18,15 @@ const trainingCount = document.getElementById("training-count");
 const finalPrice = document.getElementById("final-price");
 const packageNameText = document.querySelector(".package-name");
 
+const form = document.querySelector(".form");
+const submitBtn = document.querySelector(".submit-btn");
+
+const inputPromo = document.querySelector('input[name="promo"]');
+
 const MAKE_PREPARE_CP_PARAMS_URL =
   "https://hook.eu2.make.com/3q7a2fyvuxfp3janlys65us5t7wolaq7";
 
+// ---------- словоизменения ----------
 function getTrainingWord(n) {
   const d = n % 10,
     t = n % 100;
@@ -46,36 +55,45 @@ function getGameWord(n) {
 function updateQuantityAndTotal() {
   if (!selectedPackage) return;
   const totalPrice = selectedPackage.price * currentCount;
-  const totalTrainings = selectedPackage.hours * currentCount;
+  const totalUnits = selectedPackage.hours * currentCount;
+
   serviceTotalEl.textContent = `${totalPrice.toFixed(2)}₽`;
   amountEl.textContent = currentCount;
+
+  inputPromo.value = "";
+
   if (trainingCount && selectedPackage.type === "games") {
-    trainingCount.textContent = `${totalTrainings} ${getGameWord(
-      totalTrainings
-    )}`;
+    trainingCount.textContent = `${totalUnits} ${getGameWord(totalUnits)}`;
   } else {
-    trainingCount.textContent = `${totalTrainings} ${getTrainingWord(
-      totalTrainings
-    )}`;
+    trainingCount.textContent = `${totalUnits} ${getTrainingWord(totalUnits)}`;
   }
+
   if (finalPrice) finalPrice.textContent = `${totalPrice.toFixed(2)}₽`;
   if (packageNameText && selectedGameKey)
     packageNameText.textContent = services[selectedGameKey].description;
+
+  window.currentAmount = currentCount;
 }
 
 function selectGame(gameKey, packageKey = null) {
   const game = services[gameKey];
   if (!game || !game.packages) return;
-  const selectedPackageKey =
+
+  selectedPackageKey =
     packageKey && game.packages[packageKey]
       ? packageKey
       : Object.keys(game.packages)[0];
+
   selectedPackage = game.packages[selectedPackageKey];
   selectedGameKey = gameKey;
-  currentCount = 1;
-  const totalHours = selectedPackage.hours * currentCount;
 
+  window.currentGameKey = selectedGameKey;
+  window.currentPackageKey = selectedPackageKey;
+  currentCount = 1;
+
+  const totalHours = selectedPackage.hours * currentCount;
   packageNameEl.textContent = `Пакет ${selectedPackage.name}`;
+
   if (selectedPackage.type === "games") {
     packageHoursEl.innerHTML = `${totalHours} ${getGameWord(totalHours)} `;
   } else if (selectedPackage.type === "analysis") {
@@ -85,23 +103,46 @@ function selectGame(gameKey, packageKey = null) {
       totalHours
     )} <br /> тренировок`;
   }
+
   packagePriceEl.textContent = `${selectedPackage.price.toFixed(2)}₽`;
   updateQuantityAndTotal();
+
+  const promoApi = window.PromoValidator;
+  if (promoApi) {
+    const meta = promoApi.getMeta?.() || {};
+    const isValid = promoApi.isValid?.();
+    if (isValid && meta.allowedPackage) {
+      const allowed = String(meta.allowedPackage).toLowerCase();
+      const chosen = String(selectedPackageKey).toLowerCase();
+      if (allowed !== chosen) {
+        promoApi.validateNow?.();
+        const msgEl = document.getElementById("promo-message");
+        if (msgEl) {
+          msgEl.textContent = "Промокод недействителен для выбранного пакета";
+          msgEl.className = "promo-msg invalid-msg";
+        }
+        const inp = document.querySelector('input[name="promo"]');
+        inp && (inp.classList.remove("valid"), inp.classList.add("invalid"));
+      }
+    }
+  }
 }
 
-document.getElementById("minus").addEventListener("click", () => {
+// ---------- +/- ----------
+minusBtn.addEventListener("click", () => {
   if (currentCount > 1) {
     currentCount--;
     updateQuantityAndTotal();
   }
 });
-document.getElementById("plus").addEventListener("click", () => {
+plusBtn.addEventListener("click", () => {
   if (currentCount < 10) {
     currentCount++;
     updateQuantityAndTotal();
   }
 });
 
+// ---------- postMessage ----------
 window.addEventListener("message", (event) => {
   const allowedOrigins = [
     "https://www.skillsdiff.com",
@@ -114,12 +155,12 @@ window.addEventListener("message", (event) => {
   }
 });
 
+// ---------- CloudPayments ----------
 function openCPWidget(cpCfg) {
   const SUCCESS_URL = "https://www.skillsdiff.com/thank-you-page";
   const ERROR_URL = "https://www.skillsdiff.com/error";
 
   const widget = new cp.CloudPayments({ language: "ru" });
-
   let finished = false;
 
   widget.pay(
@@ -144,13 +185,11 @@ function openCPWidget(cpCfg) {
         finished = true;
         window.parent.location.href = ERROR_URL;
       },
-      onComplete: function (paymentResult, options) {
+      onComplete: function (paymentResult) {
         finished = true;
-        if (paymentResult && paymentResult.success) {
+        if (paymentResult && paymentResult.success)
           window.parent.location.href = SUCCESS_URL;
-        } else {
-          window.parent.location.href = ERROR_URL;
-        }
+        else window.parent.location.href = ERROR_URL;
       },
     }
   );
@@ -163,8 +202,9 @@ function closeLightbox() {
   );
 }
 
-document.querySelector(".form").addEventListener("submit", async function (e) {
+form.addEventListener("submit", async function (e) {
   e.preventDefault();
+
   if (!selectedPackage || !services[selectedGameKey]) {
     alert("Выберите пакет");
     return;
@@ -178,6 +218,48 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     return;
   }
 
+  const promoApi = window.PromoValidator;
+  let promoVal = "";
+  let promoValid = null;
+  let promoMeta = {
+    flow: null,
+    scenarioUrl: null,
+    discount: null,
+    message: "",
+    allowedPackage: null,
+  };
+
+  if (promoApi) {
+    promoVal = promoApi.getValue?.() || "";
+    promoValid = promoApi.isValid?.();
+    promoMeta = promoApi.getMeta?.() || promoMeta;
+
+    if (promoVal && promoValid === null && promoApi.validateNow) {
+      const res = await promoApi.validateNow();
+      promoValid = res.valid;
+      promoMeta = res.meta || promoMeta;
+    }
+
+    if (promoVal && promoValid === false) {
+      return;
+    }
+
+    if (promoVal && promoValid && promoMeta.allowedPackage) {
+      const allowed = String(promoMeta.allowedPackage).toLowerCase();
+      const chosen = String(selectedPackageKey).toLowerCase();
+      if (allowed !== chosen) {
+        const msgEl = document.getElementById("promo-message");
+        if (msgEl) {
+          msgEl.textContent = "Промокод недействителен для выбранного пакета";
+          msgEl.className = "promo-msg invalid-msg";
+        }
+        const inp = document.querySelector('input[name="promo"]');
+        inp && (inp.classList.remove("valid"), inp.classList.add("invalid"));
+        return;
+      }
+    }
+  }
+
   const amount = Number((selectedPackage.price * currentCount).toFixed(2));
   const currency = "RUB";
   const invoiceId = `SD-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
@@ -187,7 +269,9 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     email,
     name,
     game: services[selectedGameKey].name,
+    gameKey: selectedGameKey,
     package: selectedPackage.name,
+    packageKey: selectedPackageKey,
     count: currentCount,
     total_hours: selectedPackage.hours * currentCount,
     price_per_package: selectedPackage.price,
@@ -196,18 +280,44 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     invoice_id: invoiceId,
     account_id: email,
     description,
+    promo: promoVal || null,
+    promo_flow: promoValid && promoMeta.flow ? promoMeta.flow : null,
   };
 
-  const btn = document.querySelector(".submit-btn");
-  const oldText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "Готовим оплату…";
-
-  const form = document.querySelector(".form");
+  // UI
+  const oldText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Готовим оплату…";
   form.classList.add("hidden");
-
   const sumbWindow = document.querySelector(".window");
   sumbWindow.classList.remove("hidden");
+
+  if (
+    promoVal &&
+    promoValid &&
+    promoMeta.flow === "scenario" &&
+    promoMeta.scenarioUrl
+  ) {
+    try {
+      const resp = await fetch(promoMeta.scenarioUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) throw new Error(`Scenario HTTP ${resp.status}`);
+      window.location.href = "https://www.skillsdiff.com/thank-you-page";
+      return;
+    } catch (err) {
+      console.error("[Scenario] error:", err);
+      alert("Ошибка обработки промокода. Попробуйте позже.");
+      form.classList.remove("hidden");
+      sumbWindow.classList.add("hidden");
+      submitBtn.disabled = false;
+      submitBtn.textContent = oldText;
+      return;
+    }
+  }
 
   try {
     const resp = await fetch(MAKE_PREPARE_CP_PARAMS_URL, {
@@ -222,14 +332,18 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     } else {
       console.error("Bad response from Make:", result);
       alert("Ошибка: не удалось подготовить оплату. Попробуйте позже.");
+      form.classList.remove("hidden");
+      sumbWindow.classList.add("hidden");
     }
   } catch (err) {
     console.error(err);
     alert("Сервис оплаты временно недоступен. Попробуйте позже.");
+    form.classList.remove("hidden");
+    sumbWindow.classList.add("hidden");
   } finally {
-    btn.disabled = false;
-    btn.textContent = oldText;
+    submitBtn.disabled = false;
+    submitBtn.textContent = oldText;
   }
 });
 
-selectGame("dota2", "divine");
+selectGame("valorant", "start");

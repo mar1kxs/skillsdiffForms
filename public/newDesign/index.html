@@ -79,14 +79,70 @@
       <section class="payment-container">
         <div class="inputs-container">
           <div class="input-container">
-            <input type="text" name="name" required class="custom-input" />
+            <input
+              type="text"
+              name="name"
+              required
+              class="custom-input"
+              placeholder=" "
+            />
             <span class="custom-span">Имя *</span>
           </div>
 
           <div class="input-container">
-            <input type="email" name="email" required class="custom-input" />
+            <input
+              type="email"
+              name="email"
+              required
+              class="custom-input"
+              placeholder=" "
+            />
             <span class="custom-span">Email *</span>
           </div>
+          <section class="promo">
+            <button
+              class="promo__toggle"
+              type="button"
+              id="promoToggle"
+              aria-expanded="false"
+            >
+              <svg
+                class="promo__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 8l6 6 6-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M6 12l6 6 6-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  opacity=".7"
+                />
+              </svg>
+              <span class="promo__label">У меня есть промокод</span>
+            </button>
+
+            <div class="promo__panel" id="promoPanel">
+              <div class="promo__input-container">
+                <input
+                  type="text"
+                  name="promo"
+                  class="promo-input"
+                  placeholder="Введите промокод"
+                />
+              </div>
+              <p id="promo-message"></p>
+            </div>
+          </section>
         </div>
         <h2>Способ оплаты</h2>
         <div class="radio-container">
@@ -130,6 +186,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/build/sha256.min.js"></script>
     <script src="./src/scripts/main.js" type="module" defer></script>
+    <script src="./src/scripts/promo.js"></script>
     <script>
       function openPol() {
         window.parent.location.href =

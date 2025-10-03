@@ -23,6 +23,10 @@
   --bg: #0e0e0e;
   --bg2: #2b2b2b;
   --bg3: #404040;
+  --speed: 250ms;
+  --easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --border: 1px solid #e5e7eb;
+  --radius: 10px;
 }
 
 body {
@@ -166,7 +170,7 @@ h2 {
 
 .inputs-container {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   flex-direction: column;
   padding: 24px 0px;
 }
@@ -264,7 +268,7 @@ h2 {
 }
 
 .custom-input:focus + .custom-span,
-.custom-input:valid + .custom-span {
+.custom-input:not(:placeholder-shown) + .custom-span {
   transform: translateY(-26px) scale(0.9);
   color: var(--text);
 }
@@ -391,4 +395,97 @@ h2 {
   to {
     transform: rotate(360deg);
   }
+}
+
+.promo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.promo__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--speed);
+}
+
+.promo__label {
+  font-weight: 600;
+  flex: 1;
+  text-align: left;
+}
+
+/* SVG стрелка */
+.promo__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  transition: transform var(--speed) var(--easing);
+}
+.promo__toggle[aria-expanded="true"] .promo__icon {
+  transform: rotate(180deg);
+}
+
+/* Выпадаемая область — анимируем max-height + opacity + translateY */
+.promo__panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height var(--speed) var(--easing), opacity var(--speed) linear,
+    transform var(--speed) var(--easing);
+}
+.promo__panel[data-open="true"] {
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.promo-input {
+  width: 100%;
+  border: 1px solid var(--text);
+  background-color: var(--bg);
+  padding: 20px;
+  border-radius: 10px;
+  color: var(--text);
+}
+
+/* Уважение prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .promo__icon,
+  .promo__panel {
+    transition: none;
+  }
+}
+.promo-input.valid {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+.promo-input.invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+.promo-input.loading {
+  border-color: #9ca3af;
+}
+.promo-msg {
+  font-size: 13px;
+  margin-top: 4px;
+}
+.valid-msg {
+  color: #10b981;
+}
+.invalid-msg {
+  color: #ef4444;
+}
+.loading-msg {
+  color: #6b7280;
 }
