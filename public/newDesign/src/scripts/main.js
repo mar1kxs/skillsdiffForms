@@ -54,13 +54,11 @@ function getGameWord(n) {
 
 function updateQuantityAndTotal() {
   if (!selectedPackage) return;
-  const totalPrice = selectedPackage.price * currentCount;
+
+  const baseTotal = selectedPackage.price * currentCount;
   const totalUnits = selectedPackage.hours * currentCount;
 
-  serviceTotalEl.textContent = `${totalPrice.toFixed(2)}₽`;
   amountEl.textContent = currentCount;
-
-  inputPromo.value = "";
 
   if (trainingCount && selectedPackage.type === "games") {
     trainingCount.textContent = `${totalUnits} ${getGameWord(totalUnits)}`;
@@ -68,7 +66,26 @@ function updateQuantityAndTotal() {
     trainingCount.textContent = `${totalUnits} ${getTrainingWord(totalUnits)}`;
   }
 
-  if (finalPrice) finalPrice.textContent = `${totalPrice.toFixed(2)}₽`;
+  let toShow = baseTotal;
+  const promoApi = window.PromoValidator;
+  if (promoApi && promoApi.isValid?.()) {
+    const meta = promoApi.getMeta?.() || {};
+    const d = meta.discount;
+    if (d && d.type) {
+      if (d.type === "percent") {
+        const pct = Number(d.value || 0);
+        toShow = Math.max(0, Math.round((baseTotal * (100 - pct)) / 100));
+      } else if (d.type === "amount") {
+        const off = Number(d.value || 0);
+        toShow = Math.max(0, Math.round(baseTotal - off));
+      }
+    }
+  }
+
+  // обновляем оба поля — чтобы и общая цена, и финальная показывали скидку
+  serviceTotalEl.textContent = `${toShow.toFixed(2)}₽`;
+  if (finalPrice) finalPrice.textContent = `${toShow.toFixed(2)}₽`;
+
   if (packageNameText && selectedGameKey)
     packageNameText.textContent = services[selectedGameKey].description;
 
@@ -261,6 +278,26 @@ form.addEventListener("submit", async function (e) {
   }
 
   const amount = Number((selectedPackage.price * currentCount).toFixed(2));
+  function applyDiscount(sum, discount) {
+    if (!discount || !discount.type) return sum;
+    if (discount.type === "percent") {
+      const pct = Number(discount.value || 0);
+      return Math.max(0, Math.round((sum * (100 - pct)) / 100));
+    }
+    if (discount.type === "amount") {
+      const off = Number(discount.value || 0);
+      return Math.max(0, Math.round(sum - off));
+    }
+    return sum;
+  }
+
+  const discountedAmount =
+    promoValid && promoMeta?.discount
+      ? applyDiscount(amount, promoMeta.discount)
+      : amount;
+
+  // обновим UI, чтобы пользователь видел реальную сумму со скидкой
+  if (finalPrice) finalPrice.textContent = `${discountedAmount.toFixed(2)}₽`;
   const currency = "RUB";
   const invoiceId = `SD-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
   const description = `${services[selectedGameKey].description} — ${selectedPackage.name}`;
@@ -282,6 +319,8 @@ form.addEventListener("submit", async function (e) {
     description,
     promo: promoVal || null,
     promo_flow: promoValid && promoMeta.flow ? promoMeta.flow : null,
+    total_price_discounted: discountedAmount, // сумма со скидкой
+    discount: promoValid ? promoMeta.discount : null,
   };
 
   // UI
@@ -292,32 +331,7 @@ form.addEventListener("submit", async function (e) {
   const sumbWindow = document.querySelector(".window");
   sumbWindow.classList.remove("hidden");
 
-  if (
-    promoVal &&
-    promoValid &&
-    promoMeta.flow === "scenario" &&
-    promoMeta.scenarioUrl
-  ) {
-    try {
-      const resp = await fetch(promoMeta.scenarioUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) throw new Error(`Scenario HTTP ${resp.status}`);
-      window.location.href = "https://www.skillsdiff.com/thank-you-page";
-      return;
-    } catch (err) {
-      console.error("[Scenario] error:", err);
-      alert("Ошибка обработки промокода. Попробуйте позже.");
-      form.classList.remove("hidden");
-      sumbWindow.classList.add("hidden");
-      submitBtn.disabled = false;
-      submitBtn.textContent = oldText;
-      return;
-    }
-  }
+  // НЕ делаем window.location.href = ... и НЕ return
 
   try {
     const resp = await fetch(MAKE_PREPARE_CP_PARAMS_URL, {
@@ -347,3 +361,4 @@ form.addEventListener("submit", async function (e) {
 });
 
 selectGame("valorant", "start");
+window.addEventListener("promo:validated", () => updateQuantityAndTotal());

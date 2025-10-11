@@ -120,10 +120,52 @@
       const data = await parseSafe(res);
       const ok = toBool(data.valid);
 
+      // --- НОРМАЛИЗАЦИЯ СКИДКИ ---
+      const DEFAULT_DISCOUNT_TYPE = "percent"; // поменяй на "amount", если число = фикс. сумма
+      const rawDisc = data.discount;
+      let normDiscount = null;
+
+      if (rawDisc && typeof rawDisc === "object") {
+        const type = String(rawDisc.type || "").toLowerCase();
+        const value = Number(rawDisc.value);
+        if (
+          (type === "percent" || type === "amount") &&
+          Number.isFinite(value)
+        ) {
+          normDiscount = { type, value, currency: rawDisc.currency || null };
+        }
+      } else if (typeof rawDisc === "number") {
+        if (Number.isFinite(rawDisc)) {
+          normDiscount = {
+            type: DEFAULT_DISCOUNT_TYPE,
+            value: rawDisc,
+            currency: null,
+          };
+        }
+      } else if (typeof rawDisc === "string") {
+        const s = rawDisc.trim();
+        const mPct = s.match(/^(-?\d+(?:\.\d+)?)\s*%$/); // "15%" или "-15 %"
+        const mAmt = s.match(/^(-?\d+(?:\.\d+)?)$/); // "15" или "-300"
+        if (mPct) {
+          normDiscount = {
+            type: "percent",
+            value: Number(mPct[1]),
+            currency: null,
+          };
+        } else if (mAmt) {
+          normDiscount = {
+            type: DEFAULT_DISCOUNT_TYPE,
+            value: Number(mAmt[1]),
+            currency: null,
+          };
+        }
+      }
+      // ---------------------------
+
       promoMeta = {
         flow: data.flow || null,
         scenarioUrl: data.scenarioUrl || null,
-        discount: data.discount || null,
+        discount: normDiscount,
         message: data.message || "",
         allowedPackage: data.package || null,
       };
@@ -133,6 +175,13 @@
       } else {
         setState("invalid", promoMeta.message || "Промокод недействителен");
       }
+
+      // Сообщаем остальному коду о результате
+      window.dispatchEvent(
+        new CustomEvent("promo:validated", {
+          detail: { ok, promo, meta: { ...promoMeta } },
+        })
+      );
 
       return { valid: ok, meta: promoMeta };
     } catch (e) {
