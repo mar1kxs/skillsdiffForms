@@ -360,5 +360,5 @@ form.addEventListener("submit", async function (e) {
   }
 });
 
-selectGame("valorant", "start");
+selectGame("valorant", "dagg3r");
 window.addEventListener("promo:validated", () => updateQuantityAndTotal());

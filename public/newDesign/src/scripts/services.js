@@ -25,6 +25,12 @@ export const services = {
       friend3: { name: "3 человека", hours: 1, price: 1199, type: "hours" },
       friend4: { name: "4 человека", hours: 1, price: 1439, type: "hours" },
       friend5: { name: "Full-stack", hours: 1, price: 1679, type: "hours" },
+      dagg3r: {
+        name: "Aim-курс от DaGG3r",
+        hours: 1,
+        price: 3000,
+        type: "analysis",
+      },
     },
   },
   valCoach: {
